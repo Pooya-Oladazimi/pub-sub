@@ -25,7 +25,12 @@ func main() {
 		fmt.Println("Channel failed to open.")
 		os.Exit(1)
 	}
-
+	routingKey := fmt.Sprintf("%s.*", routing.GameLogSlug)
+	_, _, err = pubsub.DeclareAndBind(brokerConnection, routing.ExchangePerilTopic, routing.GameLogSlug, routingKey, pubsub.DurableType)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
 	gamelogic.PrintServerHelp()
 	for {
 		words := gamelogic.GetInput()
