@@ -14,6 +14,13 @@
 - the exchange on RabbitMq cluster decides in which Queue to put it --> based on the routing key
 - How exchange match the incoming request with the routing key? --> Direct (exact match), Topic (pattern matching wildcard), Fanout (all queues), Header (based on reqeust header not the key itself)
 - Queues are either: Durable (persist on disk) or Transient (exist only on RAM).
+- if multiple consumer are connected to a queue, the message get consumed by only one them based on a round-robbin algorithm (or any other). 
+- if all consumer need to get a message at the same time, it's better to have one queue for each.
+- routing keys are made up words separated with dot. Example: user.post.follow
+- routing keys can include * (exactly one) or # (zero or more). for example user.*.won does NOT match user.won . It matched user.game.won
+- naming convention for queue and key is that the queue name should include the key. Example: key=user.created  queue=user.created.email_notifier
+- key name should be: noun.verb
+
 
 
 
