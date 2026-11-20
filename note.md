@@ -21,6 +21,10 @@
 - naming convention for queue and key is that the queue name should include the key. Example: key=user.created  queue=user.created.email_notifier
 - key name should be: noun.verb
 
+- Dead Letter Queue: where failed messages go to.
+- There are two types of Nack: Nack and requeue (return back to the queue), Nack and discard (remove from queue and move it to the dead letter queue)
+
+
 
 
 

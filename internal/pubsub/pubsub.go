@@ -15,6 +15,14 @@ const (
 	DurableType   SimpleQueueType = "durable"
 )
 
+type AckType string
+
+const (
+	Ack         AckType = "Ack"
+	NackRequeue AckType = "NackRequeue"
+	NackDiscard AckType = "NackDiscard"
+)
+
 func PublishJSON[T any](ch *amqp.Channel, exchange, key string, val T) error {
 	data, err := json.Marshal(val)
 	if err != nil {
@@ -56,7 +64,7 @@ func SubscribeJSON[T any](
 	queueName,
 	key string,
 	queueType SimpleQueueType, // an enum to represent "durable" or "transient"
-	handler func(T),
+	handler func(T) AckType,
 ) error {
 	ch, q, err := DeclareAndBind(conn, exchange, queueName, key, queueType) // return existing otherwise create.
 	if err != nil {
@@ -74,8 +82,17 @@ func SubscribeJSON[T any](
 				delivery.Nack(false, false)
 				continue
 			}
-			handler(data)
-			delivery.Ack(false)
+			ackT := handler(data)
+			if ackT == Ack {
+				delivery.Ack(false)
+				fmt.Println("Ack the message.")
+			} else if ackT == NackRequeue {
+				delivery.Nack(false, true)
+				fmt.Println("Nack and move back to the queue.")
+			} else {
+				delivery.Nack(false, false)
+				fmt.Println("Nack and move to Dead letter Queue.")
+			}
 		}
 	}()
 	return nil
